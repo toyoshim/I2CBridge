@@ -5,7 +5,7 @@ LPC810: Serial to I2C bridge
 Serial to I2C brige firmware for LPC810. This firmware accept commands from serial port, then execute I2C operations to return response through the serial port.
 
 ## Schematic
-[![Schematic](https://raw.githubusercontent.com/toyoshim/I2CInspector/master/schem.png "Schematic")](https://upverter.com/toyoshim/564092a49959599c/I2CBridge/)
+[![Schematic](https://raw.githubusercontent.com/toyoshim/I2CBridge/master/schem.png "Schematic")](https://upverter.com/toyoshim/564092a49959599c/I2CBridge/)
 
 ## How to build
 This repository includes prebiult binaries under Release/ directory, but also you can build it by yourself with the LPCXpresso project files included in this repository too.
