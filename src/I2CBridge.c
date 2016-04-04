@@ -197,9 +197,15 @@ uint8_t usart_getc() {
 // command byte format:
 //  |7|6|5|4|3|2|1|0|
 //  |e| cmd |  data |
-// e: If 1, executes I2C access with parameters set. If cmd is for
-//    2nd or 3rd data, execute 2 or 3 bytes read or write. Otherwise
-//    do for 1 byte.
+// e: If e is 1 and cmd is not 0, executes a read or write I2C operation.
+//    I2C data size is calculated from the cmd value by the following equation.
+//      data size = cmd >> 1
+//    If e is 1 and cmd is 0, executes a bridge mode configuration.
+//      data:
+//        0 ... run I2C at 100kHz
+//        1 ... run I2C at 400kHz
+//        2 ... run I2C at 1MHz
+//        3 ... run as fast as possible
 // cmd:
 //   0 ... Set high 4-bits of I2C target address
 //   1 ... Set low 4-bits of I2C target address (low 3-bites and r/w bit)
@@ -231,7 +237,23 @@ int main() {
   for (;;) {
     uint8_t rxdata = usart_getc();
     uint8_t size = 1;
-    switch (rxdata & 0x70) {
+    if (0x80 == (rxdata & 0xf0)) {
+      switch (rxdata) {
+      case 0x80:
+        LPC_I2C->DIV = CPU_CLOCK / 100000 / 4 - 1;
+        break;
+      case 0x81:
+        LPC_I2C->DIV = CPU_CLOCK / 400000 / 4 - 1;
+        break;
+      case 0x82:
+        LPC_I2C->DIV = CPU_CLOCK / 1000000 / 4 - 1;
+        break;
+      case 0x83:
+        LPC_I2C->DIV = 0;
+        break;
+      }
+      continue;
+    } else switch (rxdata & 0x70) {
     case 0x00:  // Set Address High
       address = (address & 0x0f) | ((rxdata << 4) & 0xf0);
       break;
